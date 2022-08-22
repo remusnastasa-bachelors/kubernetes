@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: php
+  labels:
+    app: php
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: php
+  template:
+    metadata:
+      labels:
+        app: php
+    spec:
+      containers:
+      - name: php
+        image: remusnastasa/my-php
+        ports:
+        - containerPort: 80
+        env:
+        - name: MYSQL_USER
+          valueFrom: 
+            configMapKeyRef:
+              name: mysql-configmap
+              key: username
+        - name: MYSQL_PASSWORD
+          valueFrom: 
+            secretKeyRef:
+              name: mysql-secret
+              key: mysql-password
+        - name: MYSQL_SERVER
+          valueFrom: 
+            configMapKeyRef:
+              name: mysql-configmap
+              key: server_url
+        - name: MYSQL_DATABASE
+          valueFrom: 
+            configMapKeyRef:
+              name: mysql-configmap
+              key: database_name
+        imagePullPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: php-service
+spec:
+  selector:
+    app: php
+  type: LoadBalancer  
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      nodePort: 30080
+
