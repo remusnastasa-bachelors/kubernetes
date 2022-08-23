@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: mysql-configmap
 data:
-  server_url: mysql-service
-  database_name: enterprise
+  server-url: mysql-service
+  database-name: enterprise
   username: root
 

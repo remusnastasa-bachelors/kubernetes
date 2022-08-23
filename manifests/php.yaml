@@ -17,6 +17,7 @@ spec:
       containers:
       - name: php
         image: remusnastasa/my-php
+        imagePullPolicy: Always
         ports:
         - containerPort: 80
         env:
@@ -34,13 +35,12 @@ spec:
           valueFrom: 
             configMapKeyRef:
               name: mysql-configmap
-              key: server_url
+              key: server-url
         - name: MYSQL_DATABASE
           valueFrom: 
             configMapKeyRef:
               name: mysql-configmap
-              key: database_name
-        imagePullPolicy: Always
+              key: database-name
 ---
 apiVersion: v1
 kind: Service
@@ -48,11 +48,9 @@ metadata:
   name: php-service
 spec:
   selector:
-    app: php
-  type: LoadBalancer  
+    app: php 
   ports:
     - protocol: TCP
       port: 80
       targetPort: 80
-      nodePort: 30080
 
