@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jenkins
+  labels:
+    app: jenkins
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jenkins
+  template:
+    metadata:
+      labels:
+        app: jenkins
+    spec:
+      containers:
+      - name: jenkins
+        image: remusnastasa/my-jenkins
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        env:
+        - name: JENKINS_USER
+          valueFrom: 
+            configMapKeyRef:
+              name: jenkins-configmap
+              key: username
+        - name: JENKINS_PASSWORD
+          valueFrom: 
+            secretKeyRef:
+              name: jenkins-secret
+              key: password
+        - name: DOCKER_USER
+          valueFrom: 
+            configMapKeyRef:
+              name: jenkins-configmap
+              key: docker-username
+        - name: DOCKER_PASSWORD
+          valueFrom: 
+            secretKeyRef:
+              name: jenkins-secret
+              key: docker-token
+        - name: JENKINS_SERVER
+          valueFrom: 
+            configMapKeyRef:
+              name: jenkins-configmap
+              key: server-url
+        - name: KUBE_SERVER
+          value:  kubernetes.default.svc
+        - name: SERVICE_ACCOUNT_TOKEN
+          valueFrom: 
+            secretKeyRef:
+              name: jenkins-service-account-token
+              key: token  
+        volumeMounts: 
+        - name: jenkins-docker-sock
+          mountPath: /var/run/docker.sock
+      volumes:
+      - name: jenkins-docker-sock
+        hostPath:
+          path: /var/run/docker.sock
+          type: Socket
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jenkins-service
+spec:
+  selector:
+    app: jenkins 
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+      nodePort: 30081
+

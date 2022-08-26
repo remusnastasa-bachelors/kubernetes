@@ -1,0 +1,55 @@
+apiVersion:  apps/v1
+kind: Deployment 
+metadata:
+  name: nginx
+  labels:
+    app: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: remusnastasa/my-nginx
+        imagePullPolicy: Always
+        volumeMounts:
+          - mountPath: "/etc/nginx/ssl"
+            name: nginx-secret
+            readOnly: true
+        ports:
+        - containerPort: 443
+        env:
+        - name: PHP_SERVER
+          valueFrom: 
+            configMapKeyRef:
+              name: php-configmap
+              key: server-url
+        - name: NGINX_CERT_PATH
+          valueFrom: 
+            configMapKeyRef:
+              name: nginx-configmap
+              key: cert-path
+      volumes:
+        - name: nginx-secret
+          secret:
+            secretName: nginx-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+spec:
+  selector:
+    app: nginx
+  type: LoadBalancer  
+  ports:
+    - protocol: TCP
+      port: 443
+      targetPort: 443
+      nodePort: 30443
