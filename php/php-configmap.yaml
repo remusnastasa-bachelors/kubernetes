@@ -4,3 +4,27 @@ metadata:
   name: php-configmap
 data:
   server-url: php-service
+  filebeat.yml: |
+    filebeat:
+      config:
+        modules:
+          path: /usr/share/filebeat/modules.d/*.yml
+          reload:
+            enabled: true
+      inputs:
+      - type: filestream
+        id: apache-filestream-id
+        paths:
+        - "/var/log/apache2/*"
+        fields:
+          apache: true
+        fields_under_root: true
+    output:
+      logstash:
+        enabled: false
+        hosts: ["logstash-serviceeee:5044"]
+      console:
+        pretty: true
+    logging:
+      level: debug
+      to_stderr: true

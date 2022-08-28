@@ -53,6 +53,9 @@ spec:
             secretKeyRef:
               name: jenkins-service-account-token
               key: token  
+        securityContext:
+          privileged: true
+          runAsUser: 0
         volumeMounts: 
         - name: jenkins-docker-sock
           mountPath: /var/run/docker.sock
