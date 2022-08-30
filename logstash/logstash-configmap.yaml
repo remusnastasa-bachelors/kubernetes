@@ -13,7 +13,9 @@ data:
       }
     }
     filter {
-    
+      grok {
+        match => {'message'=>'%{HTTPD_COMMONLOG}'}
+      }
     }
     output {
       elasticsearch {

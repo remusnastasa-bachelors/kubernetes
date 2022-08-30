@@ -11,20 +11,12 @@ data:
           path: /usr/share/filebeat/modules.d/*.yml
           reload:
             enabled: true
-      inputs:
-      - type: filestream
-        id: apache-filestream-id
-        paths:
-        - "/var/log/apache2/*"
-        fields:
-          apache: true
-        fields_under_root: true
+      modules:
+      - module: apache2
+        access:
+          var.paths: ["/var/log/apache2/access.log*"]
+        error:
+          var.paths: ["/var/log/apache2/error.log*"]
     output:
       logstash:
-        enabled: false
-        hosts: ["logstash-serviceeee:5044"]
-      console:
-        pretty: true
-    logging:
-      level: debug
-      to_stderr: true
+        hosts: ["logstash-service:5044"]
