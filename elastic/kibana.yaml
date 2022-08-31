@@ -29,9 +29,9 @@ kind: Service
 metadata:
   name: kibana-service
 spec:
+  type: LoadBalancer
   selector:
     app: kibana 
-  type: LoadBalancer  
   ports:
     - protocol: TCP
       port: 5601
